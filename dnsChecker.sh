@@ -6,14 +6,45 @@
 # It is distributed under GNU GPLv3.0 License, if you add
 # modification to this script feels free to open a pull request.
 # See https://github.com/luannbertaud/MassDNSChecker
-# Script version: v1.1.0
+# Script version: v1.2.0
 # --------------------------------------------------------------
 
 targetIP="00.00.000.00"
 domainsFile="./domains.txt"
 
 progressBarScale=40
-recheckDelay=2
+recheckDelay=1
+progName="$0";
+
+
+printHelp() {
+    echo -e "\nUsage: $progName [OPTIONS]\n"
+    res=""
+    res+="  -t,@--target@IP to wich the DNSs should resolves\n"
+    res+="  -D,@--domains@Path to the file containing DNSs to verify\n"
+    res+="  -d,@--delay@Delay in seconds between each DNS query\n"
+    res+="  -h,@--help@Display this help page\n"
+    echo -e "$res" | column -ts '@'
+    echo
+    
+}
+
+while (( "$#" )); do
+    case $1 in
+        -t|--target) targetIP="$2"; shift ;;
+        -D|--domains) domainsFile="$2"; shift ;;
+        -d|--delay) recheckDelay="$2"; shift ;;
+        -h|--help) printHelp; exit 0 ;;
+        *) echo "Unknown parameter : $1"; printHelp; exit 1 ;;
+    esac
+    shift
+done
+
+if [[ ! -f $domainsFile ]];
+then
+    echo "Error trying to read domains file [$domainsFile], file not found."
+    exit 1
+fi
 
 domainNb=$(wc -l $domainsFile | awk '{print $1}')
 domainIdx=0
